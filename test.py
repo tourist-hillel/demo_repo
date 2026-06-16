@@ -11,3 +11,6 @@ if hasattr(a, '__mul__') and isinstance(a, int):
     print(a*a)
 else:
     print(f'"{a}" is a string and we cant do multiply')
+
+
+print('ssh worked')
