@@ -1,8 +1,9 @@
-# def calc(x: int, y: int) -> int:
-#     return x.__mul__(y) # x*y -> x.__mul__(y)
+def calc(x: int, y: int) -> int:
+    return x.__mul__(y) # x*y -> x.__mul__(y)
 
 
-# print(calc(3.0, 5))
+print(calc(3.0, 5))
+
 
 a = '2'
 
