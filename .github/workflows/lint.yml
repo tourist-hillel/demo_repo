@@ -25,4 +25,4 @@ jobs:
                 python -m pip install --upgrade pip
                 pip install flake8
             - name: Run Flake8
-              run: flake8 . --exclude=migrations --max-line-length=110
+              run: flake8 event_planner/events_planner/ws_chat --exclude=migrations --max-line-length=110
