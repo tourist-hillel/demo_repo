@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      image: ${IMAGE_NAME}
     command: >
       sh -c "python manage.py collectstatic --no-input && uvicorn events_planner.asgi:application --reload --host 0.0.0.0 --port 8000 --workers 1"
     volumes:

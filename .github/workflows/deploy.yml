@@ -38,6 +38,7 @@ jobs:
                 CELERY_RESULT_BACKEND=${{ secrets.CELERY_RESULT_BACKEND }}
                 AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
                 AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+                IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPOSITORY }}:latest
                 EOF
 
             - name: Set up Docker Buildx
@@ -53,29 +54,28 @@ jobs:
               id: meta
               uses: docker/metadata-action@v5
               with:
-                images: >-
-                    ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPOSITORY }}
+                images: ${{ env.IMAGE_NAME }}
                 tags: |
                   type=raw,value=latest,enable={{is_default_branch}}
                   type=sha,prefix=sha-
                   type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch'}}
             
-            - name: Build and push Docker image
-              uses: docker/build-push-action@v6
-              with:
-                context: ./event_planner/events_planner/
-                # file: ./event_planner/events_planner/Dockerfile
-                push: true
-                tags: ${{ steps.meta.outputs.tags }}
-                labels: ${{ steps.meta.outputs.labels }}
-                cache-from: type=gha
-                cache-to: type=gha, mode=max
-
             # - name: Build and push Docker image
-            #   run: |
-            #     cd ./event_planner/events_planner/
-            #     docker compose build --no-cache
-            #     echo ${{ steps.meta.outcome.images }}
-            #     docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPOSITORY }}:latest ${{ steps.meta.outputs.tags }}
-            #     docker compose push ${{ steps.meta.outputs.tags }}
-            #     docker compose push
+            #   uses: docker/build-push-action@v6
+            #   with:
+            #     context: ./event_planner/events_planner/
+            #     # file: ./event_planner/events_planner/Dockerfile
+            #     push: true
+            #     tags: ${{ steps.meta.outputs.tags }}
+            #     labels: ${{ steps.meta.outputs.labels }}
+            #     cache-from: type=gha
+            #     cache-to: type=gha, mode=max
+
+            - name: Build and push Docker image
+              run: |
+                cd ./event_planner/events_planner/
+                docker compose build --no-cache
+                echo ${{ steps.meta.outcome.images }}
+                docker tag ${{ env.IMAGE_NAME }}:latest ${{ steps.meta.outputs.tags }}
+                docker compose push ${{ steps.meta.outputs.tags }}
+                docker compose push
