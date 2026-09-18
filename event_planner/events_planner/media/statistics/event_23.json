@@ -1,0 +1,9 @@
+{
+    "event_id": 23,
+    "title": "Test just test",
+    "start_time": "2026-08-15 21:04:00+00:00",
+    "end_date": "2026-08-21 21:04:00+00:00",
+    "created_at": "2026-08-14 18:04:08.463948+00:00",
+    "user": "tl@example.com",
+    "is_completed": false
+}

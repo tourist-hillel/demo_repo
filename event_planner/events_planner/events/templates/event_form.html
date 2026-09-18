@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h3>{% if form.instance.pk %} Event edit {% else %} Event creation {% endif %}</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save</button>
+        </form>
+        <a href="{% url 'events_list' %}">Go back to events</a>
+    </body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat - {{ room_name }}</title> 
+    </head>
+    <body>
+        <h1>Room: {{ room_name }}, User: {{ request.user.email }}</h1>
+        <div id="chat-messages"></div>
+        <input type="text" id="chat-message-input">
+        <button onclick="sendMessage()">Send</button>
+        <script>
+            const roomName = "{{ room_name }}";
+            const wsScheme = (window.location.protocol === 'https:' ? 'wss://': 'ws://')
+            const chatMessages = document.getElementById('chat-messages')
+            const chatSocket = new WebSocket(
+                `${wsScheme}${window.location.host}/ws/chat/${roomName}/`
+            )
+
+            chatSocket.onopen = () => console.log('Connected to websocket');
+            chatSocket.onclose = (e) => console.log('Closed with:', e)
+
+            chatSocket.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+
+                if (data.type === 'message') {
+                    addMessage(data);
+                } else if (data.type === 'status' ) {
+                    addStatusMessage(data);
+                }
+            }
+
+            addMessage = (data) => {
+                const messageDiv = document.createElement('div');
+                messageDiv.innerHTML = `
+                    <div>
+                        <div>
+                            <strong>${escape(data.username)}</strong>
+                        </div>
+                        <div>
+                            ${escape(data.message)}
+                        </div>
+                    </div>
+                `
+                chatMessages.appendChild(messageDiv);
+            }
+
+            addStatusMessage = (data) => {
+                const statusDiv = document.createElement('div');
+                statusDiv.textContent = data.message;
+                chatMessages.appendChild(statusDiv);
+            }
+
+            sendMessage = () => {
+                const messageInput = document.getElementById('chat-message-input');
+                const message = messageInput.value.trim();
+
+                if (message) {
+                    chatSocket.send(
+                        JSON.stringify({
+                            'message': message,
+                            'type': 'message'
+                        })
+                    );
+                    messageInput.value = '';
+                    messageInput.focus();
+                }
+            }
+        </script>
+    </body>
+</html>

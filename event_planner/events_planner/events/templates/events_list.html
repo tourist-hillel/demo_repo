@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h3>Events list (Edited via VIM)</h3>
+        <form method="get">
+            {{ search_form.as_p }}
+              <!-- {{ search_form.title.label_tag }}
+              {{ search_form.title }} -->
+        </form>
+        <a href="{% url 'create_event' %}">Create new event</a>
+        <!-- <ul>
+            {% for event in events %}
+                <li><a href='{% url "event_detail" event.id %}'>Title: {{ event.title }} | Is completed: {{ event.is_completed }} | Responsible: {{ event.user }}</li></a>
+            {% endfor %}
+        </ul> -->
+        <table>
+            <tr>
+                <th>Title</th>
+                <th>Start date</th>
+                <th>End date</th>
+                <th>Status</th>
+                <th>Responsible</th>
+                <th>Actions</th>
+            </tr>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.title }}</td>
+                <td>{{ event.strat_time }}</td>
+                <td>{{ event.end_date }}</td>
+                <td>{% if event.is_completed %} Completed {% else %} In progress {% endif %}</td>
+                <td>{{ event.user }}</td>
+                <td>
+                    <a href="{% url 'event_edit' event.id %}">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>
