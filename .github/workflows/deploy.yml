@@ -53,6 +53,8 @@ jobs:
             - name: Generate Docker metadata
               id: meta
               uses: docker/metadata-action@v5
+              env:
+                IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPOSITORY }}:latest
               with:
                 images: ${{ env.IMAGE_NAME }}
                 tags: |
@@ -72,6 +74,17 @@ jobs:
             #     cache-to: type=gha, mode=max
 
             - name: Build and push Docker image
+              env:
+                POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+                POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+                POSTGRES_PASSWORD: ${{ secrets.POSTGRES_USER }}
+                POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+                POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+                CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
+                CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
+                AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+                IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPOSITORY }}:latest
               run: |
                 cd ./event_planner/events_planner/
                 docker compose build --no-cache
