@@ -75,6 +75,7 @@ jobs:
               run: |
                 cd ./event_planner/events_planner/
                 docker compose build --no-cache
+                ECHO ${{ steps.meta.outcome.images }}
                 docker tag ${{ steps.meta.outcome.images }}:latest ${{ steps.meta.outputs.tags }}
                 docker compose push ${{ steps.meta.outputs.tags }}
                 docker compose push
