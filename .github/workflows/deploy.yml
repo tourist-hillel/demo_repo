@@ -77,7 +77,7 @@ jobs:
               env:
                 POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
                 POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-                POSTGRES_PASSWORD: ${{ secrets.POSTGRES_USER }}
+                POSTGRES_PWD: ${{ secrets.POSTGRES_PWD }}
                 POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
                 POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
                 CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
