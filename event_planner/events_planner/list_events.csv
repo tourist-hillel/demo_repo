@@ -1,0 +1,2 @@
+title,start_date,end_date,user_id,description,is_completed
+Test via csv,2025-01-01,2026-09-01,0,Created via import,False

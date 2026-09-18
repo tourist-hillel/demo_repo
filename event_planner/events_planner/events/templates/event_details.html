@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h4>{{ event.title }}</h4>
+        <br>
+        <span>{{ event.description }}</span>
+        <br>
+        <span>Start: {{ event.strat_time }}</span>
+        <br>
+        <span>End: {{ event.end_date }}</span>
+        <br>
+        <span>Created: {{ event.created_at }}</span>
+        <br>
+        <span>Responsible: {{ event.user }}</span>
+        <br>
+        <span>Status: {{ event.is_completed }}</span>
+        <br>
+        <a href="{% url 'events_list' %}">Go back to events</a>
+    </body>
+</html>

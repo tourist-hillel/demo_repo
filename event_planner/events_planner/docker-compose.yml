@@ -1,0 +1,170 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      sh -c "python manage.py collectstatic --no-input && uvicorn events_planner.asgi:application --reload --host 0.0.0.0 --port 8000 --workers 1"
+    volumes:
+      - .:/app
+    # ports:
+    #   - "8000:8000"
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    depends_on:
+      event_db:
+        condition: service_healthy
+    networks:
+      - event_network
+  
+  # app2:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   command: >
+  #     sh -c "python manage.py collectstatic --no-input && uvicorn events_planner.asgi:application --reload --host 0.0.0.0 --port 8000"
+  #   # ports:
+  #   #   - "8000:8000"
+  #   expose:
+  #     - "8001"
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     event_db:
+  #       condition: service_healthy
+  #   networks:
+  #     - event_network
+
+  event_db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PWD}
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - event_network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    networks:
+      - event_network
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A events_planner beat --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      - event_network
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A events_planner worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      - event_network
+
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A events_planner flower --port=5555
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - celery_worker
+    ports:
+      - "5555:5555"
+    networks:
+      - event_network
+
+  kanchi:
+    image: getkanchi/kanchi
+    container_name: events_celery_track
+    ports:
+      - "3000:3000"
+      - "8765:8765"
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PWD}@${POSTGRES_DB}:${POSTGRES_PORT}/${POSTGRES_DB}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+    volumes:
+      - kanchi-data:/data
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - celery_worker
+    networks:
+      - event_network
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certs/:/etc/nginx/certs
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./static:/code/static
+    depends_on:
+      - app
+      # - app2
+    networks:
+      - event_network
+
+  openssl:
+    image: alpine/openssl
+    volumes:
+      - ./certs:/certs
+    command: > 
+      req -x509 -nodes -newkey rsa:4096 -keyout /certs/cert.key
+      -out /certs/cert.crt -days 365
+      -subj "/C=UA/ST=Kharkiv/L=Kharkiv/O=Hillel/OU=Lecture/CN=localhost"
+
+  minio:
+    image: minio/minio
+    container_name: events_minio
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      - MINIO_ROOT_USER=${AWS_ACCESS_KEY_ID}
+      - MINIO_ROOT_PASSWORD=${AWS_SECRET_KEY}
+    volumes:
+      - ./data:/data
+    command: server /data
+
+
+volumes:
+  kanchi-data:
+
+networks:
+  event_network:
+    driver: bridge
