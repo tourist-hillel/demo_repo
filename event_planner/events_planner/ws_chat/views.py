@@ -20,5 +20,6 @@ def register(request):
         form = EventUserForm()
     return render(request, 'registration/register.html', {'form': form})
 
+
 def test_view():
     return None
