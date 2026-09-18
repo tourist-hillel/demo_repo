@@ -73,6 +73,7 @@ jobs:
 
             - name: Build and push Docker image
               run: |
+                cd ./event_planner/events_planner/
                 docker compose build --no-cache
                 docker tag ${{ steps.meta.outputs.tags }}
                 docker compose push ${{ steps.meta.outputs.tags }}
