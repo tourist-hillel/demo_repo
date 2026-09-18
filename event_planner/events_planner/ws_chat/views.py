@@ -3,9 +3,11 @@ from django.contrib.auth.decorators import login_required
 from user_account.forms import EventUserForm
 from django.contrib.auth import login
 
+
 @login_required
 def chat_main_page(request, room_name):
     return render(request, 'chat_main_page.html', {'room_name': room_name})
+
 
 def register(request):
     if request.method == 'POST':
@@ -17,4 +19,3 @@ def register(request):
     else:
         form = EventUserForm()
     return render(request, 'registration/register.html', {'form': form})
-        
