@@ -28,10 +28,10 @@ jobs:
 
             - name: Create .env file
               run: |
-                cat > .env << EOF
+                cat > ./event_planner/events_planner/.env << EOF
                 POSTGRES_DB=${{ secrets.POSTGRES_DB }}
                 POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-                POSTGRES_PASSWORD=${{ secrets.POSTGRES_PWD }}
+                POSTGRES_PWD=${{ secrets.POSTGRES_PWD }}
                 POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
                 POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
                 CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }}
